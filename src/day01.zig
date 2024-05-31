@@ -1,46 +1,58 @@
 const std = @import("std");
-const Allocator = std.mem.Allocator;
-const List = std.ArrayList;
-const Map = std.AutoHashMap;
-const StrMap = std.StringHashMap;
-const BitSet = std.DynamicBitSet;
-
-const util = @import("util.zig");
-const gpa = util.gpa;
-
 const data = @embedFile("data/day01.txt");
+const splitSca = std.mem.splitScalar;
+const parseInt = std.fmt.parseInt;
+const print = std.debug.print;
+const expect = std.testing.expect;
 
 pub fn main() !void {
-    
+    var line_iter = splitSca(u8, data, '\n');
+    var sum: u32 = 0;
+    while (line_iter.next()) |line| {
+        if (line.len > 0) {
+            const num = try parseInt(u32, line, 10);
+            sum += required_fuel(num);
+        }
+    }
+    print("PartI  : {d}\n", .{sum});
+
+    sum = 0;
+    line_iter.reset();
+    while (line_iter.next()) |line| {
+        if (line.len > 0) {
+            const num = try parseInt(u32, line, 10);
+            sum += total_required_fuel(num);
+        }
+    }
+    print("PartII : {d}\n", .{sum});
 }
 
-// Useful stdlib functions
-const tokenizeAny = std.mem.tokenizeAny;
-const tokenizeSeq = std.mem.tokenizeSequence;
-const tokenizeSca = std.mem.tokenizeScalar;
-const splitAny = std.mem.splitAny;
-const splitSeq = std.mem.splitSequence;
-const splitSca = std.mem.splitScalar;
-const indexOf = std.mem.indexOfScalar;
-const indexOfAny = std.mem.indexOfAny;
-const indexOfStr = std.mem.indexOfPosLinear;
-const lastIndexOf = std.mem.lastIndexOfScalar;
-const lastIndexOfAny = std.mem.lastIndexOfAny;
-const lastIndexOfStr = std.mem.lastIndexOfLinear;
-const trim = std.mem.trim;
-const sliceMin = std.mem.min;
-const sliceMax = std.mem.max;
+fn total_required_fuel(mass: u32) u32 {
+    var total: u32 = 0;
+    var last_mass: u32 = mass;
+    while (last_mass > 0) {
+        const fuel = required_fuel(last_mass);
+        total += fuel;
+        last_mass = fuel;
+    }
+    return total;
+}
 
-const parseInt = std.fmt.parseInt;
-const parseFloat = std.fmt.parseFloat;
+fn required_fuel(mass: u32) u32 {
+    const div = mass / 3;
+    if (div < 2) return 0 else return div - 2;
+}
 
-const print = std.debug.print;
-const assert = std.debug.assert;
+test "required fuel is correct" {
+    try expect(required_fuel(12) == 2);
+    try expect(required_fuel(14) == 2);
+    try expect(required_fuel(1969) == 654);
+    try expect(required_fuel(100756) == 33583);
+}
 
-const sort = std.sort.block;
-const asc = std.sort.asc;
-const desc = std.sort.desc;
-
-// Generated from template/template.zig.
-// Run `zig build generate` to update.
-// Only unmodified days will be updated.
+test "required total fuel is correct" {
+    try expect(total_required_fuel(12) == 2);
+    try expect(total_required_fuel(14) == 2);
+    try expect(total_required_fuel(1969) == 966);
+    try expect(total_required_fuel(100756) == 50346);
+}

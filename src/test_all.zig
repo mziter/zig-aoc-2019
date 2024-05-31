@@ -25,5 +25,6 @@ test {
     _ = @import("day23.zig");
     _ = @import("day24.zig");
     _ = @import("day25.zig");
+    _ = @import("int_code.zig");
     // Import any other files with tests here
 }
